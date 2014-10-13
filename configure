@@ -1,0 +1,111 @@
+#!/usr/bin/perl
+
+#------------------------------------------------------------------------------
+# Program name: configure.pl
+# Author      : Satheesaran <satheesaran@gmail.com>
+# Args        : None
+# Date        : 28-Mar-2013
+# Description : This perl script installs the Net::SSH module
+# -----------------------------------------------------------------------------
+use strict;
+use warnings;
+
+# Calling main funcion
+main();
+
+#------------------------------------------------------------------------------
+# Function name: install_module
+# Description  : downloads the packages, unzips and installs it
+# Args         : link[in] - http path string to get the package,
+#                MOD - module name, eg. Net::SSH
+# Output       : None
+#------------------------------------------------------------------------------
+sub install_module {
+
+    my $link = shift;               # http location to download the package 
+    my $MOD  = shift;               # Module name to be installed
+    my $dir = "/tmp/pack".time();
+    my @contents; 
+
+    # Check for the presence of Net::SSH Modules
+    `perl -e 'use $MOD'`;
+    if( $? ) {              # Module not available
+        print( "\nInstalling Module, $MOD\n" );  
+        # get the required package
+        `wget -O $dir.tar.gz $link`;
+        if( $? ) {
+            print( "\n----Error: Unable to download $MOD module from CPAN" );
+            exit(1);
+        }
+       
+        # untar the package
+        `mkdir -p $dir && tar xzvf $dir.tar.gz -C $dir`;
+        
+        # get the location of module 
+        opendir( IN, $dir ) or die( "Error: Unable to find the module" );
+        @contents = grep{ /^[^.]/ } readdir( IN );
+        closedir( IN );
+        
+        # Install the module
+        my $temp = "cd $dir/$contents[0]/ && perl $dir/$contents[0]/Makefile.PL";
+        print $temp;
+        `cd $dir/$contents[0]/ && perl $dir/$contents[0]/Makefile.PL`;
+        if( $? ) {
+            print( "\n----Error: Unable to install $MOD\n" );
+            exit(-1);
+        }
+ 
+        `cd  $dir/$contents[0]/ && make`;
+        if( $? ) {
+            print( "\n----Error: Unable to install $MOD\n" );
+            exit(-1);
+        }
+ 
+        `cd $dir/$contents[0]/ && make test`;
+        if( $? ) {
+            print( "\n----Error: Unable to install $MOD\n" );
+            exit(-1);
+        }
+
+        `cd $dir/$contents[0]/ && make install`;
+        if( $? ) {
+            print( "\n----Error: Unable to install $MOD\n" );
+            exit(-1);
+        }
+        
+        # Check for the presence of modules now 
+        `perl -e 'use $MOD'`;
+        if( $? ) {
+            print( "\n--Fail: Unable to install $MOD Module\n" );
+            exit(-1);
+        }
+
+    } 
+
+    # Module already present
+    print( "\nChecking Module $MOD ------- OK" );
+         
+}
+
+
+sub main {
+
+    # Print friendly message
+    print( "--------------------------------------------------------------\n" );
+    print( "-                C O N F I G U R I N G                       -\n" );
+    print( "--------------------------------------------------------------\n" );
+    
+    # Install IO::Tty
+    install_module( "http://search.cpan.org/CPAN/authors/id/T/TO/TODDR/IO-Tty-1.10.tar.gz",
+                    "IO::Tty" );
+    # Install Expect.pm
+    install_module( "http://search.cpan.org/CPAN/authors/id/R/RG/RGIERSIG/Expect-1.21.tar.gz",
+                    "Expect" );
+
+    # Install package - Net::SSH::Expect
+    install_module( "http://search.cpan.org/CPAN/authors/id/B/BN/BNEGRAO/Net-SSH-Expect-1.09.tar.gz",
+                    "Net::SSH::Expect" );
+    print( "\n Pass: Configuration Successful !!\n\n" );
+
+
+}
