@@ -1,0 +1,194 @@
+-------------------------------------------------------------------------------
+ Description : This is the help document particularly to understand the 
+               all the functions in one glimse.
+ Author      : Satheesaran Sundaramoorthi <sasundar@redhat.com>
+ Total Functions : 13
+-------------------------------------------------------------------------------
+
+
+
+
+===============================================================================
+LOGGING FUNCTIONS
+===============================================================================
+Below functions requires invocation using a 'Logger Instance'
+
+-------------------------------------------------------------------------------
+1. comment( STR comment )
+-------------------------------------------------------------------------------
+	Description: This functions logs the given comment to the logfile
+	Arguments  : string [in]
+	Return Val : None
+	Example    : $log = new Logger();
+	             $log->comment( "starting glusterd" );
+
+-------------------------------------------------------------------------------
+2. pass( STR comment )
+-------------------------------------------------------------------------------
+	Description: This functions logs the given comment to the logfile
+	Arguments  : string [in]
+	Return Val : None
+	Example    : $log = new Logger();
+	             $log->comment( "starting glusterd" );
+
+-------------------------------------------------------------------------------
+3. fail( STR comment )
+-------------------------------------------------------------------------------
+	Description: This functions logs the given comment to the logfile
+	Arguments  : string [in]
+	Return Val : None
+	Example    : $log = new Logger();
+	             $log->comment( "starting glusterd" );
+
+-------------------------------------------------------------------------------
+4. start( STR comment )
+-------------------------------------------------------------------------------
+	Description: This functions logs the given comment to the logfile
+	Arguments  : string [in]
+	Return Val : None
+	Example    : $log = new Logger();
+	             $log->comment( "starting glusterd" );
+
+-------------------------------------------------------------------------------
+5. error( STR comment )
+-------------------------------------------------------------------------------
+	Description: This functions logs the given comment to the logfile
+	Arguments  : string [in]
+	Return Val : None
+	Example    : $log = new Logger();
+	             $log->comment( "starting glusterd" );
+
+**NOTE**
+Log object has a constructor new() and close()
+e.g. $log = new Logger();  -- constructor that creates log object
+     $log->close();        -- closes the object 
+**
+
+===============================================================================
+GENERAL FUNCTIONS
+===============================================================================
+Below function required invocation using a 'Host Instance'
+-------------------------------------------------------------------------------
+1. execute( STR cmd )
+-------------------------------------------------------------------------------
+	Description: Executes the command and fetch back the result
+        Arguments  : command [in]
+        Return Val : Return status ($?) of the command execution,
+                     Return value after executing the command
+        Example    : ($status,$ret) = $host->execute( "cat /etc/issue" ); 
+
+-------------------------------------------------------------------------------
+2. isFilePresent( STR filename )
+-------------------------------------------------------------------------------
+	Description: checks whether the given file or directory is present
+	Arguments  : absolute path of a file name or directory name
+	Return Val : 1 if file is present, else 0
+	Example    : $bool = $host->isFilePresent( "/var/run/gluster" )
+
+-------------------------------------------------------------------------------
+3. serviceStart( STR servicename )
+-------------------------------------------------------------------------------
+	Description: Starts the service
+	Arguments  : service name
+	Return Val : 0 if successful and 1 if failed
+	Example    : $val = $host->startService( "glusterd" );
+
+-------------------------------------------------------------------------------
+4. serviceStop( STR servicename )
+-------------------------------------------------------------------------------
+	Description: Stops the service
+	Arguments  : service name
+	Return Val : 0 if successful and 1 if failed
+	Example    : $val = $host->stopService( "glusterd" );
+
+-------------------------------------------------------------------------------
+5. isKeyInFile( STR filename, STR key )
+-------------------------------------------------------------------------------
+	Description: Checks whether the given key is available in the file
+	Arguments  : absolute path of a file, key to grep-ed for.
+	Return Val : Return 1 if the key is available in the file else 0
+	Example    : $bool = $host->isKeyInFile( "/etc/issue", "redhat" );
+
+-------------------------------------------------------------------------------
+6. getValueFromFile( STR filename, STR Key, STR delimiter )
+-------------------------------------------------------------------------------
+	Description: gets the value for the key in file
+	Arguments  : absolute path of a file name, key name, delimiter between
+                     key and value
+	Return Val : returns the value if found, else returns 'undef'
+	Example    : $val = $host->getValueFromFile( "/var/lib/glusterd/vols/\
+                            distvol/info", "version", "=" );
+
+===============================================================================
+VOLUME RELATED FUNCTIONS
+===============================================================================
+Below function requires invocation using a 'Host Instance'
+
+-------------------------------------------------------------------------------
+1. setVolOption( STR volname, STR option, STR value, BOOL validation
+-------------------------------------------------------------------------------
+	Description: set the option on the volume with the given value
+                     if $validate flag is passed,then the value that is set is
+                     verified, else only set operation without verification is
+                     performed
+ 	Arguments  : volname[in], option[in], value[in], [validate[in]]
+        Return Val : (0,undef) - if successful
+		     (1, $error ) - if failure 
+        Example    : ($status,$res)=$host->setVolOption("distvol", 
+                                                     "nfs.disable","false",1 );
+                     ($status,$res)=$host->setVolOption("drvol","write-behind", 
+                                                        "off" );
+
+-------------------------------------------------------------------------------
+2. getVolOption( STR volname, STR option )
+-------------------------------------------------------------------------------
+	Description: get the value for the option on the volume
+	Arguments  : volname[in], option[in]
+	Return Vals: value of the option when success,
+		     or undef if there are no such option, or failure
+	Example    : $val = $self->getVolOption( "drvol", "io-thread-count" );
+
+
+===============================================================================
+PEER RELATED FUNCTIONS
+===============================================================================
+Below functions requires invocation using a 'Host Instance'
+
+-------------------------------------------------------------------------------
+1. peerProbe( STR hostname )
+-------------------------------------------------------------------------------
+	Description: Probes for the peer in to cluster 
+        Arguments  : hostname[in]
+	Return Val : 1 if there is a failure or 0 in case of success
+	Example    : $ret = $host->peerProbe( "10.70.37.133" );
+
+-------------------------------------------------------------------------------
+2. peerDetach( STR hostname )
+-------------------------------------------------------------------------------
+	Description: Detaches the peer in question from the host 
+        Arguments  : hostname[in]
+	Return Val : 1 if there is a failure or 0 in case of success
+	Example    : $ret = $host->peerDetach( "10.70.37.133" );
+
+-------------------------------------------------------------------------------
+3. getPeerStatus( [STR hostname] )
+-------------------------------------------------------------------------------
+	Description: gets the peer status of all hosts or only for the peer in
+ 		     question.
+                     This function is exhibits polymorphism.
+                     This function could be called without any arguments and it
+	 	     returns all hosts, if called with specific host as arg, it
+		     returns the host specific info
+	Arguments  : [hostname[in]] - optional
+	Return val : $return status, hashreference containing host as key and
+      		     value as host's status
+                     
+
+
+-------------------------------------------------------------------------------
+4. getPeerUUID( STR hostname )
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+5. getPeerCount()
+-------------------------------------------------------------------------------
