@@ -206,7 +206,7 @@ sub execute {
 
     # Log the command
     print $conslog $format."\n";
-    print $conslog localtime."---- Command sent : $cmd\n";
+    print $conslog (localtime)."---- Command sent : $cmd\n";
     if( defined($timeout) ) {
         $res = $sshconn->exec( $cmd, $timeout );
     } else {
@@ -216,8 +216,8 @@ sub execute {
 
     # get the return value of the command
     $status = $sshconn->exec( 'echo $?' );
-    print $conslog localtime."---- Response received: $res";
-    print $conslog localtime."---- Return status    : $status\n\n";
+    print $conslog (localtime)."---- Response received: $res";
+    print $conslog (localtime)."---- Return status    : $status\n\n";
     return ($status,$res);
 }
 

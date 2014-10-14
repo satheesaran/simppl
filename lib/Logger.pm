@@ -89,9 +89,9 @@ sub start {
     my $format  = "+ - " x 26;
     $format .= "\n";
     print $fh "\n";
-    print $fh localtime.":\t".$format;
-    print $fh localtime.":\t"."TEST STARTED: $comment\n";
-    print $fh localtime.":\t".$format;
+    print $fh (localtime).":\t".$format;
+    print $fh (localtime).":\t"."TEST STARTED: $comment\n";
+    print $fh (localtime).":\t".$format;
 
     # Incrementing the total number of tests
     $self->{totalcount} += 1;
@@ -111,9 +111,9 @@ sub pass {
     my $fh      = $self->{logfh};
     my $format  = "#" x 40;
     $format .= "\n";
-    print $fh localtime.":\t".$format;
-    print $fh localtime.":\t"."TEST PASSED: $comment\n";
-    print $fh localtime.":\t".$format;
+    print $fh (localtime).":\t".$format;
+    print $fh (localtime).":\t"."TEST PASSED: $comment\n";
+    print $fh (localtime).":\t".$format;
 
     # Incrementing the total number of passed tests
     $self->{passcount} += 1;
@@ -133,9 +133,9 @@ sub fail {
     my $fh      = $self->{logfh};
     my $format  = "#" x 40;
     $format .= "\n";
-    print $fh localtime.":\t".$format;
-    print $fh localtime.":\t"."TEST FAILED: $comment\n";
-    print $fh localtime.":\t".$format;
+    print $fh (localtime).":\t".$format;
+    print $fh (localtime).":\t"."TEST FAILED: $comment\n";
+    print $fh (localtime).":\t".$format;
 
     # Incrementing the total number of failed tests
     $self->{failcount} += 1;
@@ -167,7 +167,23 @@ sub error {
 sub close {
     my $self = shift;
     my $fh = $self->{logfh};
-    print $fh localtime."\t:END OF LOG - LogFile is closed\n";
+    print $fh (localtime)."\t:END OF LOG - LogFile is closed\n";
     close( $fh );
+}
+
+#-----------------------------
+# Helper functions
+#-----------------------------
+sub getPassCount {
+    my $self = shift;
+    return $self->{passcount};
+}
+sub getTotalCount {
+    my $self = shift;
+    return $self->{totalcount};
+}
+sub getFailCount {
+    my $self = shift;
+    return $self->{failcount};
 }
 1;

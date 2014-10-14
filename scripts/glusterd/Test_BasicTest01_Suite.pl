@@ -6,6 +6,7 @@ use Data::Dumper;
 sub test001 {
     my $log  = shift;
     my $host = shift;
+    my %stat;
 
     # Start Logging and it increments the total test
     $log->start( "test001 - check glusterd is chkconfiged to ON" );
@@ -14,26 +15,43 @@ sub test001 {
     ($status,$result) = $host->execute("chkconfig --list glusterd");
     if( $status == 0 ) {
         my @content = split( /\s+/, $result );
-        my %stat;
         for( @content ) {
-            $_ =~ m/:/;
-            $stat{$`} = $';
+            if( $_ =~ m/:/ ) {
+                my $key = $`;
+                my $val = $';
+                chomp( $key );
+                chomp( $val );
+                $stat{$key} = $val;
+            }
         }
     } else {
         $log->fail( "Error while executing chkconfig command" );
         goto ENDL;
     }
+print "Val of 0 is $stat{'0'}";
+    # Run levels 0,1,6 should be OFF
+    if ( ($stat{0} =~ m/off/i) and 
+         ($stat{1} =~ m/off/i) and 
+         ($stat{6} =~ m/off/i) ) {
+        $log->comment( "glusterd was chkconfiged to OFF in run-levels 0,1,6" );
+    } else {
+        $log->fail( "glusterd was chkconfiged to ON on run-levels 0,1,6" );
+        goto ENDL;
+    } 
 
     # Run levels 2,3,4,5 should be ON
-    # Run levels 0,1,6 should be OFF
-    if ( ($stat{0} ne "off") and ($stat{1} ne "off") and ($stat{6} ne "off") ) {
-        $log->fail( "GlusterD was chkconfiged to ON on run-levels 0,1,6" );
-    } elsif (($stat{2} ne "on") and ($stat{3} ne "on") and ($stat{4} ne "on") and ($stat{5} ne "on")) {
-        $log->fail( "GlusterD was chkconfiged to OFF on run-levels 2,3,4,5" );
+    if ( ($stat{2} =~ m/on/i) and 
+         ($stat{3} =~ m/on/i) and 
+         ($stat{4} =~ m/on/i) and 
+         ($stat{5} =~ m/on/i)) {
+        $log->comment( "glusterd was chkconfiged to ON in run-levels 2,3,4,5" );
     } else {
-        # Pass the test and it increments the pass test count
-        $log->pass( "test001 - glusterd was chkconfiged as expected" );
+        $log->fail( "glusterd was chkconfiged to OFF on run-levels 2,3,4,5" );
+        goto ENDL;
     }
+
+    # Pass the test and it increments the pass test count
+    $log->pass( "test001 - glusterd was chkconfiged as expected" );
     ENDL:
 }
 
