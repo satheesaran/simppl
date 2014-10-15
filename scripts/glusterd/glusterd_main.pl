@@ -88,7 +88,6 @@ sub glusterd_main {
     # Then, $hosts[3] - gets you the corresponding host object.
     
     my $host = new Host("10.70.37.55") ;
-    print Dumper($host);
     push( @hosts, $host );
 
     # Create a seperate log for console 
@@ -96,19 +95,7 @@ sub glusterd_main {
     Test_BasicTest01_Suite( $log, @hosts );
 
     # Document the results
-    my $totaltc = $log->getTotalCount();
-    my $passed  = $log->getPassCount();
-    my $failed  = $log->getFailCount();
-    print "--" x 30;
-    print "\n"
-    print "Test cases Run: $totaltc\n";
-    print "Passed        : $passed\n";
-    print "Failed        : $failed\n";
-    print "--" x 30;
-    print "\n"
-    $log->comment ( "Test cases Run: $totaltc" );
-    $log->comment ( "Passed        : $passed" );
-    $log->comment ( "Failed        : $failed" );
+    $log->printResults();
 
     # Close the log object
     $log->close();

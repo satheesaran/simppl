@@ -216,7 +216,9 @@ sub execute {
 
     # get the return value of the command
     $status = $sshconn->exec( 'echo $?' );
-    print $conslog (localtime)."---- Response received: $res";
+    if( defined($res) ) {
+        print $conslog (localtime)."---- Response received: $res";
+    }
     print $conslog (localtime)."---- Return status    : $status\n\n";
     return ($status,$res);
 }

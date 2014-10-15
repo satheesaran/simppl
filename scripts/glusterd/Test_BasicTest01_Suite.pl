@@ -1,4 +1,3 @@
-use Data::Dumper;
 #------------------------------------------------------------------------------
 # Function Name : test001
 # Description   : Check whether the glusterd service is running automatically
@@ -28,7 +27,7 @@ sub test001 {
         $log->fail( "Error while executing chkconfig command" );
         goto ENDL;
     }
-print "Val of 0 is $stat{'0'}";
+
     # Run levels 0,1,6 should be OFF
     if ( ($stat{0} =~ m/off/i) and 
          ($stat{1} =~ m/off/i) and 
@@ -61,8 +60,8 @@ print "Val of 0 is $stat{'0'}";
 #                 same when its not running
 #------------------------------------------------------------------------------
 sub test002 {
-    my $log  = shift;
-    my $host = shift;
+    my $log    = shift;
+    my $host   = shift;
     my $status = undef;
     my $res    = undef;
 
@@ -73,11 +72,7 @@ sub test002 {
     ( $status, $res ) = $host->execute( "pidof glusterd" );
     if( $status != 0 ) {
         $log->comment( "Starting glusterd as its not running" );
-        $status = $host->serviceStart( "glusterd" );
-        if( $status != 0 ) {
-            $log->fail( "Unable to start glusterd" );
-            goto ENDL;
-        }
+        $host->serviceStart( "glusterd" );
     }
 
     # Check for the lock file
@@ -93,9 +88,17 @@ sub test002 {
     # Stop glusterd on the node
     $status = undef;
     $log->comment( "Stopping glusterd" );
-    $status = $host->serviceStop( "glusterd" );
+    $host->serviceStop( "glusterd" );
+    
+
+    #Verifying whether glusterd is really stopped
+    $status = undef;
+    $res = undef;
+    ($status, $res) = $host->execute( "pidof glusterd" );
     if( $status != 0 ) {
-        $log->fail( "Unable to stop glusterd" );
+        $log->comment( "glusterd was stopped" );
+    } else {
+        $log->fail( "glusterd was not stopped" );
         goto ENDL;
     }
     
@@ -127,7 +130,6 @@ sub Test_BasicTest01_Suite {
 
     # Only one RHSS Node is required for single host test suite
     $host = $hosts[0];
-    print Dumper($host);
     &test001( $log, $host);
     &test002( $log, $host);
 }

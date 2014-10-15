@@ -5,7 +5,7 @@ package Logger;
 #                   Logging. This is the base class for $log object
 # Child Class     : None
 # Parent Class    : None
-# Total Functions : 7
+# Total Functions : 8 
 # Functions       : new() - constructor for this class
 #                   comment()
 #                   start()
@@ -13,11 +13,13 @@ package Logger;
 #                   fail()
 #                   error()
 #                   close()
+#                   printResults()
 # Author          : Satheesaran Sundaramoorthi <sasundar@redhat.com>
 #------------------------------------------------------------------------------
 
 use strict;
 use warnings;
+use FindBin;
 
 #------------------------------------------------------------------------------
 # Function Name : new
@@ -43,14 +45,31 @@ sub new {
     $tag = "${yy}${mon}${dd}_${hh}${min}${ss}";
     
     # Create a logdir
-    $logdir = $logdir.'/'."Log".$tag;
-    mkdir $logdir;
- 
+    my $currentlogdir = $logdir.'/'."Log".$tag;
+    mkdir $currentlogdir;
+
+    # Check for the directory called "latest", if its there delete it
+    #if( -l "$logdir/latest" ) {
+    #    unlink "$logdir/latest";
+    #}
+
+    # create soft link "latest" in logs pointing to current log directory
+    #`ln -s $currentlogdir "$logdir/latest"`;
+    
     # Create logfilename
     $logfilename = "log".$tag.'.log';
+    
+    # Get the current working directory
+    my $cwd = $FindBin::Bin;
+    $cwd =~ m/simppl/i;
+    $cwd = $`.$&;
+    $cwd = $cwd."/logs/Log$tag";
+    
+    # print logfile information in the console
+    print "Logfile for this test could be found at - $cwd/$logfilename\n";
 
     # Create a Logfile
-    open( $fh, ">> $logdir/$logfilename" ) or return 1;
+    open( $fh, ">> $currentlogdir/$logfilename" ) or return 1;
     $test->{logfh}      = $fh;
     $test->{totalcount} = 0;
     $test->{passcount}  = 0;
@@ -70,9 +89,9 @@ sub comment {
     my $fh      = $self->{logfh};
     my $format  = "-" x 80;
     $format .= "\n";
-    print $fh $format;
-    print $fh "TEST COMMENT:\t$comment\n";
-    print $fh $format;
+    print $fh (localtime).":\t".$format;
+    print $fh (localtime).":\t"."TEST COMMENT:\t$comment\n";
+    print $fh (localtime).":\t".$format;
 }
 
 #------------------------------------------------------------------------------
@@ -86,7 +105,7 @@ sub start {
     my $self    = shift;
     my $comment = shift;
     my $fh      = $self->{logfh};
-    my $format  = "+ - " x 26;
+    my $format  = "====" x 26;
     $format .= "\n";
     print $fh "\n";
     print $fh (localtime).":\t".$format;
@@ -109,10 +128,10 @@ sub pass {
     my $self    = shift;
     my $comment = shift;
     my $fh      = $self->{logfh};
-    my $format  = "#" x 40;
+    my $format  = "#" x 60;
     $format .= "\n";
     print $fh (localtime).":\t".$format;
-    print $fh (localtime).":\t"."TEST PASSED: $comment\n";
+    print $fh (localtime).":\t"."# TEST PASSED: $comment\n";
     print $fh (localtime).":\t".$format;
 
     # Incrementing the total number of passed tests
@@ -131,10 +150,10 @@ sub fail {
     my $self    = shift;
     my $comment = shift;
     my $fh      = $self->{logfh};
-    my $format  = "#" x 40;
+    my $format  = "#" x 60;
     $format .= "\n";
     print $fh (localtime).":\t".$format;
-    print $fh (localtime).":\t"."TEST FAILED: $comment\n";
+    print $fh (localtime).":\t"."# TEST FAILED: $comment\n";
     print $fh (localtime).":\t".$format;
 
     # Incrementing the total number of failed tests
@@ -159,6 +178,28 @@ sub error {
 }
 
 #------------------------------------------------------------------------------
+# Function Name : printResults
+# Description   : Prints the statistics of test cases run, that passed & failed
+# Arg           : Logger object
+# Return value  : None
+#------------------------------------------------------------------------------
+sub printResults {
+    my $self   = shift;
+    my $format = "#" x 60;
+    my $fh     = $self->{logfh};
+    print $fh (localtime).":\t".$format."\n";
+    print $format."\n";
+    print $fh (localtime).":\t#    Test Cases Run:".$self->{totalcount}."\n";
+    print "#    Test Cases Run:".$self->{totalcount}."\n";
+    print $fh (localtime).":\t#    Passed        :".$self->{passcount}."\n";
+    print "#    Passed        :".$self->{passcount}."\n";
+    print $fh (localtime).":\t#    Failed        :".$self->{failcount}."\n";
+    print "#    Failed        :".$self->{failcount}."\n";
+    print $fh (localtime).":\t".$format."\n";
+    print $format."\n";
+}
+
+#------------------------------------------------------------------------------
 # Function Name : close
 # Description   : closes the log file.
 # Arg           : String to be logged
@@ -167,23 +208,8 @@ sub error {
 sub close {
     my $self = shift;
     my $fh = $self->{logfh};
-    print $fh (localtime)."\t:END OF LOG - LogFile is closed\n";
+    print $fh (localtime).":\tEND OF LOG - LogFile is closed\n";
     close( $fh );
 }
 
-#-----------------------------
-# Helper functions
-#-----------------------------
-sub getPassCount {
-    my $self = shift;
-    return $self->{passcount};
-}
-sub getTotalCount {
-    my $self = shift;
-    return $self->{totalcount};
-}
-sub getFailCount {
-    my $self = shift;
-    return $self->{failcount};
-}
 1;
