@@ -22,7 +22,8 @@ use warnings;
 #----------------------------
 # Utils Module Required
 #----------------------------
-use parent 'Utils';
+use Utils;
+our @ISA = qw( Utils );
 
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
@@ -32,11 +33,40 @@ sub createVolume {
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
 sub startVolume {
+    my $host   = shift;
+    my $vol    = shift;
+    my $status = undef;
+    my $res    = undef;
+    
+    unless( defined($vol) ) {
+        return 1;
+    }
+    ($status, $res) = $host->execute( "gluster volume start $vol" );
+    if( $status == 0 ) {
+        return 0;
+    } else {
+        return 1;
+    }
 }
 
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
 sub stopVolume {
+    my $host   = shift;
+    my $vol    = shift;
+    my $status = undef;
+    my $res    = undef;
+    
+    print "Stopping volume $vol \n";
+    unless( defined($vol) ) {
+        return 1;
+    }
+    ($status, $res) = $host->execute( "gluster volume stop $vol --mode=script" );
+    if( $status == 0 ) {
+        return 0;
+    } else {
+        return 1;
+    }
 }
 
 #------------------------------------------------------------------------------

@@ -33,6 +33,7 @@ BEGIN {
 #----------------------------
 use Logger;            # Contains useful functions for logging
 use Host;              # For SSH connection mechanisms
+use Volume;
 
 #----------------------------
 # Test Suites to include
@@ -77,7 +78,7 @@ sub glusterd_main {
     # Generate LogFile Name
     my $log;                  # to contain log object
     my @hosts;                # array to contain hosts objects
-
+    
     # Create a Log object
     $log = new Logger();
 
@@ -92,7 +93,17 @@ sub glusterd_main {
 
     # Create a seperate log for console 
     # Call the Test Handler routine
-    Test_BasicTest01_Suite( $log, @hosts );
+    #Test_BasicTest01_Suite( $log, @hosts );
+    $host->setup();
+    my $res = $host->startVolume( "test" );
+    if( $res ) {
+        print "Error in stopping volume";
+    } else {
+        print "volume stoppped";
+    }
+
+    #my $ref = $host->{bricks};
+    #print "ref is $ref";
 
     # Document the results
     $log->printResults();

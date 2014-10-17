@@ -73,6 +73,7 @@ sub new {
         return 1;
     }
     $hostobj->{consolelog} = $console;
+    $hostobj->{hostname}   = $host;
 
     bless( $hostobj, $class );    
 }
@@ -88,5 +89,61 @@ sub destroy {
 
     $ssh->close();
 }
+
+#------------------------------------------------------------------------------
+# Function Name : setup
+# Description   : This functions sets up the disks for bricks
+#------------------------------------------------------------------------------
+sub setup {
+    my $self   = shift;
+    my $status = undef;
+    my $res;
+    my $bricks = [];
+    
+    # Detect bricks, if already available
+    # If bricks are already available, add those to the host object
+    ($status,$res)=$self->execute("mount|grep xfs|grep brick| cut -d ' ' -f3");
+    if( defined( $res ) ) {
+        @$bricks = split( /\n/,$res );
+        $self->{bricks} = $bricks;
+        return;
+    } 
+
+    # Create bricks out of available disks and populate the bricks array
+    my $setupScript = 'http://10.70.35.5/scripts/rhs-system-init-rss1.sh';
+    $self->execute( "wget $setupScript -O /tmp/rhs-system-init.sh" );
+    $self->execute( "chmod a+x /tmp/rhs-system-init.sh" );
+    ($status,$res) = $self->execute( "/tmp/rhs-system-init.sh" );
+    if( $status == 0 ) {
+        $self->setup();
+    } else {
+        $self->{bricks} = undef;
+    }
+
+}
+
+#------------------------------------------------------------------------------
+# Function Name : cleanBricks
+# Description   : Deletes the contents of the bricks
+# Arguments     : Array containing bricks
+# Return value  : 0 when all the contents are deleted else returns 1
+#------------------------------------------------------------------------------
+sub cleanBricks {
+
+}
+
+#------------------------------------------------------------------------------
+# Function Name : cleanup
+# Description   : Cleans the gluster configs on the host
+# Arguments     : Array containing bricks
+# Return value  : 0 when all the contents are deleted else returns 1
+#------------------------------------------------------------------------------
+sub cleanup {
+
+# Delete all the volumes
+
+# Delete the vol
+}
+
 
 1;
