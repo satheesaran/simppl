@@ -98,15 +98,18 @@ sub setup {
     my $self   = shift;
     my $status = undef;
     my $res;
-    my $bricks = [];
+    my $bricks = {};
     
     # Detect bricks, if already available
     # If bricks are already available, add those to the host object
     ($status,$res)=$self->execute("mount|grep xfs|grep brick| cut -d ' ' -f3");
     if( defined( $res ) ) {
-        @$bricks = split( /\n/,$res );
+        my @brs = split( /\n/,$res );
+        for( @brs ) {
+            $bricks->{$_} = 0;
+        }
         $self->{bricks} = $bricks;
-        return;
+        return 0;
     } 
 
     # Create bricks out of available disks and populate the bricks array
@@ -118,8 +121,14 @@ sub setup {
         $self->setup();
     } else {
         $self->{bricks} = undef;
+        return 1;
     }
+    return 0;
+}
 
+sub getHostName {
+    my $host = shift;
+    return $host->{hostname};
 }
 
 #------------------------------------------------------------------------------
@@ -129,7 +138,18 @@ sub setup {
 # Return value  : 0 when all the contents are deleted else returns 1
 #------------------------------------------------------------------------------
 sub cleanBricks {
+    my $self   = shift;
+    my %bricks = %{$self->{bricks}};
 
+    my @brickpath = keys(%bricks);
+    for( @brickpath ) {
+        $self->{bricks}->{$_} = 0;
+    }
+
+    # Remove the files in the bricks
+    for( @brickpath ) {
+        $self->execute( "rm -rf $_/*" );
+    }
 }
 
 #------------------------------------------------------------------------------

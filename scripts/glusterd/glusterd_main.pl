@@ -83,10 +83,6 @@ sub glusterd_main {
     $log = new Logger();
 
     # the hosts are added to the array @hosts.
-    # Array index starts from zero and so one less than the number of entry in 
-    # the array becomes index to the host obj
-    # For.eg. if this entry 10.70.x.x is 4th entry in the hosts.conf file
-    # Then, $hosts[3] - gets you the corresponding host object.
     
     my $host = new Host("10.70.37.55") ;
     push( @hosts, $host );
@@ -94,7 +90,9 @@ sub glusterd_main {
     # Create a seperate log for console 
     # Call the Test Handler routine
     #Test_BasicTest01_Suite( $log, @hosts );
-    $host->setup();
+    &TestSetup( $log, @hosts );
+
+$host->setup();
     my $res = $host->startVolume( "test" );
     if( $res ) {
         print "Error in stopping volume";
