@@ -39,7 +39,7 @@ use Volume;
 # Test Suites to include
 #----------------------------
 # Add more suites here. Suites are the collection of test cases
-require "Test_BasicTest01_Suite.pl";
+require "Test_Configuration_Suite.pl";
 
 #----------------------------
 # Global Constants
@@ -77,34 +77,48 @@ require "Test_BasicTest01_Suite.pl";
 sub glusterd_main {
     # Generate LogFile Name
     my $log;                  # to contain log object
-    my @hosts;                # array to contain hosts objects
+    my @servers;
+    my @clients;
+    my $hostfh;
     
     # Create a Log object
     $log = new Logger();
 
-    # the hosts are added to the array @hosts.
-    
-    my $host = new Host("10.70.37.55") ;
-    push( @hosts, $host );
-
-    # Create a seperate log for console 
-    # Call the Test Handler routine
-    #Test_BasicTest01_Suite( $log, @hosts );
-    &TestSetup( $log, @hosts );
-
-$host->setup();
-    my $res = $host->startVolume( "test" );
-    if( $res ) {
-        print "Error in stopping volume";
-    } else {
-        print "volume stoppped";
+    # The hosts information are taken in from 'hosts' file
+    eval {
+        open( $hostfh, "hosts" ) or die( "No hosts founds" );
+    };
+    if( $@ ) {
+        $log->error( "Error: $@ : add hosts to hosts file in local dir" );
+        print(" Error: $@ : add hosts to hosts file in local dir\n\n" );
+        $log->close();
+        exit(1);
     }
 
-    #my $ref = $host->{bricks};
-    #print "ref is $ref";
+    # Read the host info from the local host file
+    while( <$hostfh> ) {
+        if( m/:server/i ) {
+            push( @servers, new Host($`) );
+        } elsif (m/:client/i ) {
+            push( @clients, new Host($`) );
+        }
+    }
+    close( $hostfh );
+
+    # Perform setup, which creates the bricks, volumes,etc
+    # as of now setup is ignored, as no volume is actually required
+    #$host->setup();
+
+    # Call the Test Handler routine
+    Test_Configuration_Suite( $log, @servers );
 
     # Document the results
     $log->printResults();
+
+    # Close Host objects
+    for( @servers ) {
+        $_->destroy();
+    }
 
     # Close the log object
     $log->close();

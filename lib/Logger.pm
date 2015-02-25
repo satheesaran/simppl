@@ -115,6 +115,7 @@ sub start {
     # Incrementing the total number of tests
     $self->{totalcount} += 1;
 
+    print "\r###  Executing Test :".$self->{totalcount}." ###";
 }
 
 #------------------------------------------------------------------------------
@@ -188,7 +189,7 @@ sub printResults {
     my $format = "#" x 60;
     my $fh     = $self->{logfh};
     print $fh (localtime).":\t".$format."\n";
-    print $format."\n";
+    print "\n\n".$format."\n";
     print $fh (localtime).":\t#    Test Cases Run:".$self->{totalcount}."\n";
     print "#    Test Cases Run:".$self->{totalcount}."\n";
     print $fh (localtime).":\t#    Passed        :".$self->{passcount}."\n";

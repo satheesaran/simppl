@@ -124,7 +124,7 @@ sub test002 {
 # Args          : host object, log object
 # Return Values : None
 #------------------------------------------------------------------------------
-sub Test_BasicTest01_Suite {
+sub Test_Configuration_Suite {
     $log  = shift;
     @hosts = @_;
 

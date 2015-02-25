@@ -214,8 +214,6 @@ sub execute {
     }
     $sshconn->read_all();
 
-    # sleep for a sec
-    sleep 1;
     # get the return value of the command
     $status = $sshconn->exec( 'echo $?' );
     if( defined($res) ) {

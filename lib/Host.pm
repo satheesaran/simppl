@@ -38,7 +38,7 @@ sub new {
 
     # Setting the default user and password
     unless( defined($pass) ) {
-        $pass = "redhat";
+        $pass = "redhat1!";
     }
     unless( defined($user) ) {
         $user = "root";
@@ -160,9 +160,9 @@ sub cleanBricks {
 #------------------------------------------------------------------------------
 sub cleanup {
 
-# Delete all the volumes
-
-# Delete the vol
+    # Delete all the volumes
+    
+    # Delete the vol
 }
 
 
