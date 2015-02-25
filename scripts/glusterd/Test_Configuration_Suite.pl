@@ -119,6 +119,88 @@ sub test002 {
 }
 
 #------------------------------------------------------------------------------
+# Function Name : test003
+# Description   : selinux should be disabled by default
+#------------------------------------------------------------------------------
+sub test003 {
+    my $log  = shift;
+    my $host = shift;
+    my %stat;
+
+    # Start Logging and it increments the total test
+    $log->start( "test003 - selinux should be disabled" );
+
+    ($status,$result) = $host->execute("sestatus");
+    if( $status == 0 ) {
+        if( $result =~ m/disabled/i ) {
+            $log->pass( "selinux is disabled" );
+        } else {
+            $log->fail( "selinux is enabled" );
+        }
+    }
+}
+
+#------------------------------------------------------------------------------
+# Function Name : test004
+# Description   : /var/run/gluster should be available
+#------------------------------------------------------------------------------
+sub test004 {
+    my $log  = shift;
+    my $host = shift;
+    my %stat;
+
+    # Start Logging and it increments the total test
+    $log->start( "test004 - /var/run/gluster should be available" );
+
+    $result = $host->isFilePresent( "/var/run/gluster" );
+    if( $result ) {
+        $log->pass( "/var/run/gluster is available" );
+    } else {
+        $log->fail ( "/var/run/gluster is not available" );
+    }
+}
+
+#------------------------------------------------------------------------------
+# Function Name : test005
+# Description   : /var/lib/glusterd/groups/virt should be available
+#------------------------------------------------------------------------------
+sub test005 {
+    my $log  = shift;
+    my $host = shift;
+    my %stat;
+
+    # Start Logging and it increments the total test
+    $log->start( "test005 - virt file should be available" );
+
+    $result = $host->isFilePresent( "/var/lib/glusterd/groups/virt" );
+    if( $result ) {
+        $log->pass( "virt file is available" );
+    } else {
+        $log->fail ( "virt file is not available" );
+    }
+}
+
+#------------------------------------------------------------------------------
+# Function Name : test006
+# Description   : /var/lib/glusterd/groups/small-file-perf should be available
+#------------------------------------------------------------------------------
+sub test006 {
+    my $log  = shift;
+    my $host = shift;
+    my %stat;
+
+    # Start Logging and it increments the total test
+    $log->start( "test006 - small-file-perf should be available" );
+
+    $result = $host->isFilePresent( "/var/lib/glusterd/groups/small-file-perf" );
+    if( $result ) {
+        $log->pass( "small-file-perf file is available" );
+    } else {
+        $log->fail ( "small-file-perf file is not available" );
+    }
+}
+
+#------------------------------------------------------------------------------
 # Function Name : Test_BasicTest01_Suite
 # Description   : This is the test handler for single node glusterd cases
 # Args          : host object, log object
@@ -132,5 +214,9 @@ sub Test_Configuration_Suite {
     $host = $hosts[0];
     &test001( $log, $host);
     &test002( $log, $host);
+    &test003( $log, $host);
+    &test004( $log, $host);
+    &test005( $log, $host);
+    &test006( $log, $host);
 }
 return 1;
